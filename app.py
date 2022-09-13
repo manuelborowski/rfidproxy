@@ -3,9 +3,11 @@ import sys, os, json, html, logging, logging.handlers
 
 # 0.1 : initial version
 # 0.2: added small delay before boot so that answer can be send
+# 0.3: added api to set server configuration
 
+VERSION = '0.3'
 
-VERSION = '0.2'
+SERVER_CONFIG_FILE = './server.json'
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('config.py')
@@ -38,6 +40,30 @@ def set_wireless():
         else:
             log.error(f"update wireless failed, ssid or key not present")
             return json.dumps({"status": False, "data": '/api/wireless?ssid=XXX&key=XXX'})
+    except Exception as e:
+        log.error(f'{sys._getframe().f_code.co_name}: {e}')
+        return json.dumps({"status": False, "data": html.escape(str(e))})
+
+
+@app.route("/api/server", methods=['POST'])
+def set_server():
+    try:
+        if 'key' in request.args and 'url' in request.args:
+            key = request.args['key']
+            url = request.args['url']
+            data = {'key': key, 'url': url}
+            with open(SERVER_CONFIG_FILE, "w") as cfg:
+                cfg.write(json.dumps(data))
+            log.info(f"update server settings {url}")
+            if app.config['REBOOT']:
+                os.system("(sleep 1; sudo reboot) &")
+            else:
+                log.info('update server, do not reboot')
+                os.system("(sleep 1; echo reboot test) &")
+            return json.dumps({"status": True, "data": 'server update ok, going to reboot'})
+        else:
+            log.error(f"update server failed, url or key not present")
+            return json.dumps({"status": False, "data": '/api/server?url=XXX&key=XXX'})
     except Exception as e:
         log.error(f'{sys._getframe().f_code.co_name}: {e}')
         return json.dumps({"status": False, "data": html.escape(str(e))})
