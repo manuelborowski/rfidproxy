@@ -1,4 +1,4 @@
-import logging.handlers, keyboard
+import logging.handlers, keyboard, json, sys, requests, datetime
 
 log = logging.getLogger('RPH')
 
@@ -66,22 +66,49 @@ def process_code(code):
 
     return is_valid_code, is_rfid_code, code
 
-valid_key = True
-input_string = ''
-while True:
-    key = keyboard.read_key()
-    if valid_key:
-        if key == 'enter':
-            valid_key = True
-            _, _, output_code = process_code(input_string)
-            input_string = ''
-            print(output_code)
-        else:
-            input_string += key
-    valid_key = not valid_key
 
-    # input_code = input('enter code: ')
-    # _, _, output_code = process_code(input_code)
-    # print(f'output code: {output_code}')
-    # log.info(f'output code: {output_code}')
-    # input('Press enter to close')
+def send_scan_info(url, rfid):
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    res = session.post(f'{url}/api/scanevent?rfid={rfid}&timestamp={now}')
+    if res.status_code == 200:
+        data = res.json()
+        print(data)
+    else:
+        print('could not send')
+
+
+test_keyboard = True
+try:
+    #read configuration file
+    with open('server.json') as cfg:
+        config = json.loads(cfg.read())
+        url = config['url']
+        session = requests.Session()
+        valid_key = True
+        input_string = ''
+        while True:
+            if test_keyboard:
+                input_code = input('enter code: ')
+                _, _, output_code = process_code(input_code)
+                print(f'scanned code, {output_code}')
+                send_scan_info(url, output_code)
+            else:
+                key = keyboard.read_key()
+                if valid_key:
+                    if key == 'enter':
+                        valid_key = True
+                        _, _, output_code = process_code(input_string)
+                        input_string = ''
+                        log.info(f'scanned code, {output_code}')
+                        send_scan_info(url, output_code)
+                    else:
+                        input_string += key
+                valid_key = not valid_key
+
+            # input_code = input('enter code: ')
+            # _, _, output_code = process_code(input_code)
+            # print(f'output code: {output_code}')
+            # log.info(f'output code: {output_code}')
+            # input('Press enter to close')
+except Exception as e:
+    log.error(f'{sys._getframe().f_code.co_name}: {e}')
