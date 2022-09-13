@@ -1,3 +1,15 @@
+import logging.handlers, keyboard
+
+log = logging.getLogger('RPH')
+
+log.setLevel('INFO')
+log_handler = logging.handlers.RotatingFileHandler('./rfidhandler.log', maxBytes=1024 * 1024, backupCount=20)
+log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(log_formatter)
+log.addHandler(log_handler)
+
+log.info(f"start RFID HANDLER")
+
 def process_code(code):
     def process_int_code(code):
         if int(code) < 100000:
@@ -54,7 +66,22 @@ def process_code(code):
 
     return is_valid_code, is_rfid_code, code
 
-input_code = input('enter code: ')
-_, _, output_code = process_code(input_code)
-print(f'output code: {output_code}')
-input('Press enter to close')
+valid_key = True
+input_string = ''
+while True:
+    key = keyboard.read_key()
+    if valid_key:
+        if key == 'enter':
+            valid_key = True
+            _, _, output_code = process_code(input_string)
+            input_string = ''
+            print(output_code)
+        else:
+            input_string += key
+    valid_key = not valid_key
+
+    # input_code = input('enter code: ')
+    # _, _, output_code = process_code(input_code)
+    # print(f'output code: {output_code}')
+    # log.info(f'output code: {output_code}')
+    # input('Press enter to close')

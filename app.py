@@ -12,15 +12,15 @@ SERVER_CONFIG_FILE = './server.json'
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('config.py')
-log = logging.getLogger('RP')
+log = logging.getLogger('RPC')
 
 log.setLevel('INFO')
-log_handler = logging.handlers.RotatingFileHandler('./rfidproxy.log', maxBytes=1024 * 1024, backupCount=20)
+log_handler = logging.handlers.RotatingFileHandler('./rfidconfig.log', maxBytes=1024 * 1024, backupCount=20)
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 log_handler.setFormatter(log_formatter)
 log.addHandler(log_handler)
 
-log.info(f"start RFID ")
+log.info(f"start RFID CONFIG")
 
 @app.route("/api/wireless", methods=['POST'])
 def set_wireless():
@@ -79,3 +79,5 @@ def get_version():
         return json.dumps({"status": False, "data": html.escape(str(e))})
 
 
+# start rfid handler
+os.system('python3 rfidhandler.py &')
