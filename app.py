@@ -2,8 +2,10 @@ from flask import Flask, request
 import sys, os, json, html, logging, logging.handlers
 
 # 0.1 : initial version
+# 0.2: added small delay before boot so that answer can be send
 
-VERSION = '0.1'
+
+VERSION = '0.2'
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('config.py')
@@ -28,7 +30,10 @@ def set_wireless():
                 cfg.write(template)
             log.info(f"update wireless to ssid {request.args['ssid']}")
             if app.config['REBOOT']:
-                os.system("sudo reboot")
+                os.system("(sleep 1; sudo reboot) &")
+            else:
+                log.info('update wireless, do not reboot')
+                os.system("(sleep 1; echo reboot test) &")
             return json.dumps({"status": True, "data": 'wireless update ok, going to reboot'})
         else:
             log.error(f"update wireless failed, ssid or key not present")
