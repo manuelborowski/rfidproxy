@@ -4,8 +4,9 @@ import sys, os, json, html, logging, logging.handlers
 # 0.1 : initial version
 # 0.2: added small delay before boot so that answer can be send
 # 0.3: added api to set server configuration
+# 0.4: added rfid handler
 
-VERSION = '0.3'
+VERSION = '0.4'
 
 SERVER_CONFIG_FILE = './server.json'
 
