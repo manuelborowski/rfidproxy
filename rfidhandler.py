@@ -3,7 +3,7 @@ import logging.handlers, keyboard, json, sys, requests, datetime
 log = logging.getLogger('RPH')
 
 log.setLevel('INFO')
-log_handler = logging.handlers.RotatingFileHandler('./rfidhandler.log', maxBytes=1024 * 1024, backupCount=20)
+log_handler = logging.handlers.RotatingFileHandler('./log/rfidhandler.log', maxBytes=1024 * 1024, backupCount=20)
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 log_handler.setFormatter(log_formatter)
 log.addHandler(log_handler)

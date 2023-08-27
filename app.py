@@ -5,8 +5,9 @@ import sys, os, json, html, logging, logging.handlers
 # 0.2: added small delay before boot so that answer can be send
 # 0.3: added api to set server configuration
 # 0.4: added rfid handler
+# 0.5: added network check.  Updated logging
 
-VERSION = '0.4'
+VERSION = '0.5'
 
 SERVER_CONFIG_FILE = './server.json'
 
@@ -15,7 +16,7 @@ app.config.from_pyfile('config.py')
 log = logging.getLogger('RPC')
 
 log.setLevel('INFO')
-log_handler = logging.handlers.RotatingFileHandler('./rfidconfig.log', maxBytes=1024 * 1024, backupCount=20)
+log_handler = logging.handlers.RotatingFileHandler('./log/rfidconfig.log', maxBytes=1024 * 1024, backupCount=20)
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 log_handler.setFormatter(log_formatter)
 log.addHandler(log_handler)
