@@ -1,6 +1,6 @@
 import logging.handlers, json, sys, requests, datetime, os, time
 from instance.config import *
-from gpiozero import LED
+import gpiozero
 
 log = logging.getLogger('NWC')
 
@@ -26,7 +26,7 @@ count_trying_ping_periods = NWC_TRYING_PING_PERIODS
 
 state = STATE_TRYING
 try:
-    status_led = LED(NWC_LED_PIN)
+    status_led = gpiozero.LED(NWC_LED_PIN)
     while True:
         if state == STATE_TRYING:
             count_trying_ping_periods -= 1
