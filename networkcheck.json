@@ -1,3 +1,4 @@
 {
-  "USE_GPIOZERO": false
+  "USE_GPIOZERO": false,
+  "LED_PIN": 17
 }

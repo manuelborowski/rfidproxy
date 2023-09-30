@@ -47,7 +47,7 @@ try:
         if config['USE_GPIOZERO']:
             global status_led
             from gpiozero import LED
-            status_led = LED(17)
+            status_led = LED(config["LED_PIN"])
         while True:
             if state == STATE_TRYING:
                 count_trying_ping_periods -= 1
