@@ -67,9 +67,11 @@ def process_code(code):
     return is_valid_code, is_rfid_code, code
 
 
-def send_scan_info(url, rfid):
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    res = session.post(f'{url}/api/scanevent?rfid={rfid}&timestamp={now}')
+def send_scan_info(url, key, location, rfid):
+    now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    # res = session.post(f'{url}/api/scanevent?rfid={rfid}&timestamp={now}')
+    res = requests.post(f"{url}/api/registration/add", headers={'x-api-key': key},
+                        json={"location_key": location, "badge_code": rfid, "timestamp": now})
     if res.status_code == 200:
         data = res.json()
         print(data)
@@ -77,12 +79,14 @@ def send_scan_info(url, rfid):
         print('could not send')
 
 
-test_keyboard = True
+test_keyboard = False
 try:
     #read configuration file
     with open('server.json') as cfg:
         config = json.loads(cfg.read())
         url = config['url']
+        api_key = config["key"]
+        location = config["location"]
         session = requests.Session()
         valid_key = True
         input_string = ''
@@ -91,7 +95,7 @@ try:
                 input_code = input('enter code: ')
                 _, _, output_code = process_code(input_code)
                 print(f'scanned code, {output_code}')
-                send_scan_info(url, output_code)
+                send_scan_info(url, api_key, location, output_code)
             else:
                 key = keyboard.read_key()
                 if valid_key:
@@ -100,7 +104,7 @@ try:
                         _, _, output_code = process_code(input_string)
                         input_string = ''
                         log.info(f'scanned code, {output_code}')
-                        send_scan_info(url, output_code)
+                        send_scan_info(url, api_key, location, output_code)
                     else:
                         input_string += key
                 valid_key = not valid_key

@@ -50,10 +50,11 @@ def set_wireless():
 @app.route("/api/server", methods=['POST'])
 def set_server():
     try:
-        if 'key' in request.args and 'url' in request.args:
+        if 'key' in request.args and 'url' in request.args and 'location' in request.args:
             key = request.args['key']
             url = request.args['url']
-            data = {'key': key, 'url': url}
+            location = request.args['location']
+            data = {'key': key, 'url': url, "location": location}
             with open(SERVER_CONFIG_FILE, "w") as cfg:
                 cfg.write(json.dumps(data))
             log.info(f"update server settings {url}")
