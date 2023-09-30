@@ -1,4 +1,5 @@
 import logging.handlers, json, sys, requests, datetime, os, time
+from instance.config import *
 import gpiozero
 
 log = logging.getLogger('NWC')
@@ -12,12 +13,10 @@ log.addHandler(log_handler)
 log.info(f"start NETWORK CHECK")
 
 CLOCK_PERIOD = 0.5  # seconds
-NWC_CONNECTED_PING_PERIODS = 5
-NWC_TRYING_PING_PERIODS = 1
-LED_PIN = 16
+
 
 def ping():
-    return os.system(f"ping -c 1 -w 1 8.8.8.8 > /dev/null") == 0
+    return os.system(f"ping -c 1 -w 1 {NWC_PING_HOST} > /dev/null") == 0
 
 
 STATE_TRYING = 'trying'
@@ -27,7 +26,7 @@ count_trying_ping_periods = NWC_TRYING_PING_PERIODS
 
 state = STATE_TRYING
 try:
-    status_led = gpiozero.LED(LED_PIN)
+    status_led = gpiozero.LED(NWC_LED_PIN)
     while True:
         if state == STATE_TRYING:
             count_trying_ping_periods -= 1
