@@ -1,5 +1,5 @@
 import logging.handlers, json, sys, requests, datetime, os, time
-from instance.config import *
+from instance import config
 import gpiozero
 
 log = logging.getLogger('NWC')
@@ -16,22 +16,22 @@ CLOCK_PERIOD = 0.5  # seconds
 
 
 def ping():
-    return os.system(f"ping -c 1 -w 1 {NWC_PING_HOST} > /dev/null") == 0
+    return os.system(f"ping -c 1 -w 1 {config.NWC_PING_HOST} > /dev/null") == 0
 
 
 STATE_TRYING = 'trying'
 STATE_CONNECTED = 'connected'
-count_connected_ping_periods = NWC_CONNECTED_PING_PERIODS
-count_trying_ping_periods = NWC_TRYING_PING_PERIODS
+count_connected_ping_periods = config.NWC_CONNECTED_PING_PERIODS
+count_trying_ping_periods = config.NWC_TRYING_PING_PERIODS
 
 state = STATE_TRYING
 try:
-    status_led = gpiozero.LED(NWC_LED_PIN)
+    status_led = gpiozero.LED(config.NWC_LED_PIN)
     while True:
         if state == STATE_TRYING:
             count_trying_ping_periods -= 1
             if count_trying_ping_periods <= 0:
-                count_trying_ping_periods = NWC_TRYING_PING_PERIODS
+                count_trying_ping_periods = config.NWC_TRYING_PING_PERIODS
                 if ping():
                     # ping is ok, change state
                     state = STATE_CONNECTED
@@ -43,7 +43,7 @@ try:
         if state == STATE_CONNECTED:
             count_connected_ping_periods -= 1
             if count_connected_ping_periods <= 0:
-                count_connected_ping_periods = NWC_CONNECTED_PING_PERIODS
+                count_connected_ping_periods = config.NWC_CONNECTED_PING_PERIODS
                 if ping():
                     # ping is ok
                     status_led(True)
