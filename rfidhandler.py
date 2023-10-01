@@ -66,7 +66,7 @@ class Rfid7941W():
                         # beep()
                         # p6 = machine.PWM(beep_pin, freq=1000, duty_u16=30000)
                         timestamp = datetime.datetime.now().isoformat()
-                        ret = requests.post(f"{config['api_url']}/api/registration/add", headers={'x-api-key': config['api_key']},
+                        ret = requests.post(f"{config['url']}/api/registration/add", headers={'x-api-key': config['key']},
                                             json={"location_key": config["location"], "badge_code": code, "timestamp": timestamp})
                         # p6.deinit()
                         if ret.status_code == 200:
