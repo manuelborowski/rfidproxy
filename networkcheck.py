@@ -2,6 +2,8 @@ import logging.handlers, sys, time, subprocess
 from instance.config import *
 import gpiozero
 
+# in crontab: @reboot cd /home/ict/projects/rfidproxy && python3 networkcheck.py
+
 log = logging.getLogger('NWC')
 
 log.setLevel('INFO')
