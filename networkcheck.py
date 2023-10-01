@@ -1,4 +1,4 @@
-import logging.handlers, json, sys, requests, datetime, os, time
+import logging.handlers, sys, time, subprocess
 from instance.config import *
 import gpiozero
 
@@ -16,7 +16,7 @@ CLOCK_PERIOD = 0.5  # seconds
 
 
 def ping():
-    return os.system(f"ping -c 1 -w 1 {NWC_PING_HOST} > /dev/null") == 0
+    return subprocess.call(f"ping -c 1 -w 1 {NWC_PING_HOST}".split(" "), stdout=subprocess.DEVNULL) == 0
 
 
 STATE_TRYING = 'trying'

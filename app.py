@@ -6,8 +6,9 @@ import sys, os, json, html, logging, logging.handlers
 # 0.3: added api to set server configuration
 # 0.4: added rfid handler
 # 0.5: added network check.  Updated logging
+# 0.6: networkcheck update
 
-VERSION = '0.5'
+VERSION = '0.6'
 
 SERVER_CONFIG_FILE = './server.json'
 
