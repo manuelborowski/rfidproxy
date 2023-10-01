@@ -35,7 +35,7 @@ try:
                 if ping():
                     # ping is ok, change state
                     state = STATE_CONNECTED
-                    status_led(True)
+                    status_led.on()
                     log.info('network connection is UP')
                 else:
                     # ping is not ok, blink led
@@ -46,7 +46,7 @@ try:
                 count_connected_ping_periods = NWC_CONNECTED_PING_PERIODS
                 if ping():
                     # ping is ok
-                    status_led(True)
+                    status_led.on()
                 else:
                     # ping is not ok, change state
                     state = STATE_TRYING

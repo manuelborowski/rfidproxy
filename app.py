@@ -7,8 +7,9 @@ import sys, os, json, html, logging, logging.handlers
 # 0.4: added rfid handler
 # 0.5: added network check.  Updated logging
 # 0.6: networkcheck update
+# 0.7: bugfix
 
-VERSION = '0.6'
+VERSION = '0.7'
 
 SERVER_CONFIG_FILE = './server.json'
 
