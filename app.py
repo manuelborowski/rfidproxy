@@ -9,7 +9,7 @@ import sys, os, json, html, logging, logging.handlers
 # 0.6: networkcheck update
 # 0.7: bugfix
 
-VERSION = '0.7'
+VERSION = '0.8'
 
 SERVER_CONFIG_FILE = './server.json'
 

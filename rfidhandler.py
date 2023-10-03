@@ -1,4 +1,6 @@
 import logging.handlers, keyboard, json, sys, requests, datetime, gpiozero, binascii, serial, datetime
+import time
+
 from instance.config import RFID_SOURCE, RFID_BEEP_PIN, RFID_REGISTER_OK_PIN, RFID_REGISTER_NOK_PIN
 
 log = logging.getLogger('RPH')
@@ -11,7 +13,6 @@ log.addHandler(log_handler)
 
 log.info(f"start RFID HANDLER")
 
-
 def read_server_config_file():
     with open('server.json') as cfg:
         config = json.loads(cfg.read())
@@ -20,7 +21,6 @@ def read_server_config_file():
 
 def send_scan_info(url, key, location, rfid):
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-    # res = session.post(f'{url}/api/scanevent?rfid={rfid}&timestamp={now}')
     res = requests.post(f"{url}/api/registration/add", headers={'x-api-key': key},
                         json={"location_key": location, "badge_code": rfid, "timestamp": now})
     if res.status_code == 200:
@@ -39,10 +39,10 @@ class Rfid7941W():
         self.register_nok_pin.toggle()
 
     def start(self):
-        print("start main")
         self.register_ok_pin = gpiozero.LED(RFID_REGISTER_OK_PIN)
         self.register_nok_pin = gpiozero.LED(RFID_REGISTER_NOK_PIN)
-        self.beep_pin = gpiozero.PWMLED(RFID_BEEP_PIN, frequency=1000)
+        factory = gpiozero.pins.pigpio.PiGPIOFactory()
+        self.beep_pin = gpiozero.PWMLED(RFID_BEEP_PIN, frequency=1000, pin_factory=factory)
         rfid_serial = serial.Serial("/dev/ttyS0", 115200, timeout=0.1)
         ctr = 0
         prev_code = ""
@@ -57,24 +57,31 @@ class Rfid7941W():
                 rcv = binascii.hexlify(rcv_raw).decode("UTF-8")
                 if rcv[6:8] == "81":  # valid uid received
                     code = rcv[10:18]
-                    if code != prev_code or ctr > 10:
+                    if code != prev_code or ctr > 5:
                         self.register_ok_pin.off()
                         self.register_nok_pin.off()
-                        self.beep_pin.value = 0.5
-                        # beep()
-                        # p6 = machine.PWM(beep_pin, freq=1000, duty_u16=30000)
                         timestamp = datetime.datetime.now().isoformat().split(".")[0]
-                        ret = requests.post(f"{config['url']}/api/registration/add", headers={'x-api-key': config['key']},
-                                            json={"location_key": config["location"], "badge_code": code, "timestamp": timestamp})
+                        try:
+                            ret = requests.post(f"{config['url']}/api/registration/add", headers={'x-api-key': config['key']},
+                                                json={"location_key": config["location"], "badge_code": code, "timestamp": timestamp})
+                        except Exception as e:
+                            log.error(f"requests.post() threw exception: {e}")
+                            self.beep_pin.off()
+                            self.register_ok_pin.on()
+                            self.register_nok_pin.on()
+                            continue
                         self.beep_pin.off()
-                        # p6.deinit()
                         if ret.status_code == 200:
                             res = ret.json()
                             print(res)
+                            self.beep_pin.value = 0.5
                             if res["status"]:
                                 self.register_ok_pin.on()
+                                time.sleep(0.2)
                             else:
                                 self.register_nok_pin.on()
+                                time.sleep(0.8)
+                            self.beep_pin.off()
                         print(code)
                         ctr = 0
                     prev_code = code
@@ -177,6 +184,9 @@ class RfidKeyboard():
             log.error(f'{sys._getframe().f_code.co_name}: {e}')
 
 
-if RFID_SOURCE == "7941W":
-    rfid = Rfid7941W()
-    rfid.start()
+try:
+    if RFID_SOURCE == "7941W":
+        rfid = Rfid7941W()
+        rfid.start()
+except Exception as e:
+    log.error(f"Exited: {e}")
