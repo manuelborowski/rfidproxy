@@ -40,7 +40,6 @@ class Rfid7941W():
 
     def start(self):
         print("start main")
-        self.beep_pin = gpiozero.LED(RFID_BEEP_PIN)
         self.register_ok_pin = gpiozero.LED(RFID_REGISTER_OK_PIN)
         self.register_nok_pin = gpiozero.LED(RFID_REGISTER_NOK_PIN)
         self.beep_pin = gpiozero.PWMLED(RFID_BEEP_PIN, frequency=1000)
