@@ -1,6 +1,13 @@
 from flask import Flask, request
 import sys, os, json, html, logging, logging.handlers
 
+# crontab -l
+# @reboot cd /home/ict/projects/rfidproxy && python3 networkcheck.py
+# @reboot cd /home/ict/projects/rfidproxy && python3 rfidhandler.py
+# sudo crontab -l
+# @reboot pigpiod
+
+
 # 0.1 : initial version
 # 0.2: added small delay before boot so that answer can be send
 # 0.3: added api to set server configuration
@@ -8,8 +15,11 @@ import sys, os, json, html, logging, logging.handlers
 # 0.5: added network check.  Updated logging
 # 0.6: networkcheck update
 # 0.7: bugfix
+# 0.8: improved beep
+# 0.9: updated info
+# 0.10: simple update
 
-VERSION = '0.8'
+VERSION = '0.10'
 
 SERVER_CONFIG_FILE = './server.json'
 

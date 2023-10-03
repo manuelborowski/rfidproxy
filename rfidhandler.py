@@ -73,16 +73,15 @@ class Rfid7941W():
                         self.beep_pin.off()
                         if ret.status_code == 200:
                             res = ret.json()
-                            print(res)
                             self.beep_pin.value = 0.5
                             if res["status"]:
                                 self.register_ok_pin.on()
+                                log.info(f"scanned {code} at {timestamp}")
                                 time.sleep(0.2)
                             else:
                                 self.register_nok_pin.on()
                                 time.sleep(0.8)
                             self.beep_pin.off()
-                        print(code)
                         ctr = 0
                     prev_code = code
                     ctr += 1
