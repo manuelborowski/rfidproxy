@@ -43,14 +43,12 @@ class Rfid7941W():
         self.beep_pin = gpiozero.LED(RFID_BEEP_PIN)
         self.register_ok_pin = gpiozero.LED(RFID_REGISTER_OK_PIN)
         self.register_nok_pin = gpiozero.LED(RFID_REGISTER_NOK_PIN)
-        # rfid_serial = machine.UART(0, baudrate=115200, bits=8, parity=None, stop=1, timeout=100)
+        self.beep_pin = gpiozero.PWMLED(RFID_BEEP_PIN, frequency=1000)
         rfid_serial = serial.Serial("/dev/ttyS0", 115200, timeout=0.1)
         ctr = 0
         prev_code = ""
         self.register_ok_pin.off()
         self.register_nok_pin.off()
-
-        # machine.Timer(mode=machine.Timer.PERIODIC, period=500, callback=self.test_timer_blink)
 
         while True:
             config = read_server_config_file()
@@ -63,11 +61,13 @@ class Rfid7941W():
                     if code != prev_code or ctr > 10:
                         self.register_ok_pin.off()
                         self.register_nok_pin.off()
+                        self.beep_pin.value = 0.5
                         # beep()
                         # p6 = machine.PWM(beep_pin, freq=1000, duty_u16=30000)
-                        timestamp = datetime.datetime.now().isoformat()
+                        timestamp = datetime.datetime.now().isoformat().split(".")[0]
                         ret = requests.post(f"{config['url']}/api/registration/add", headers={'x-api-key': config['key']},
                                             json={"location_key": config["location"], "badge_code": code, "timestamp": timestamp})
+                        self.beep_pin.off()
                         # p6.deinit()
                         if ret.status_code == 200:
                             res = ret.json()
